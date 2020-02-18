@@ -4,6 +4,21 @@ import Control.Monad
 import Control.Concurrent (threadDelay)
 import System.Random (randomRIO)
 import System.IO
+import System.Console.Terminfo
+
+terminal :: IO Terminal
+terminal = setupTermFromEnv
+
+clear :: OutputCap a => IO (Maybe a)
+clear = fmap (\t -> getCapability t (tiGetOutput1 "clear")) terminal
+
+clearField :: IO ()
+clearField = do
+    maybeClear <- clear
+    term <- terminal
+    case maybeClear of
+        Just cap -> runTermOutput term cap
+        Nothing -> return ()
 
 data Direction = North | South | West | East deriving (Eq, Show)
 
@@ -98,9 +113,6 @@ moveSnake snake direction extend =
         else
             moveHead (head snake) direction : init snake
 
-clear :: IO ()
-clear = putStr "\ESC[2J"
-
 getKey :: IO [Char]
 getKey = reverse <$> getKey' ""
   where getKey' chars = do
@@ -154,8 +166,9 @@ gameLoop snake point oldDirection score = do
     let isGameOver = tileInSnake (tail snake) (head snake)
     threadDelay tickDelay
     --threadDelay 1000000
+    
+    clearField
 
-    clear
     putStr $ printField2 newSnake point
     putStrLn $ "Score: " ++ show newScore
     putStrLn $ show direction
@@ -171,9 +184,9 @@ gameLoop snake point oldDirection score = do
 gameOver :: Int -> IO ()
 gameOver score = do
     threadDelay tickDelay
+    clearField
     putStrLn "Game over!"
     putStrLn $ "Score: " ++ show score
-    clear
     key <- getKeyIfPressed
     case key of
         Just " " -> do
