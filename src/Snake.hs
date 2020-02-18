@@ -162,6 +162,10 @@ gameLoop snake point oldDirection score = do
     newPoint <- handleApple snake point eats
     let isGameOver = tileInSnake (tail snake) (head snake)
     threadDelay tickDelay
+
+    if isGameOver
+        then gameOver newScore
+        else return ()
     
     clearField
 
@@ -173,9 +177,7 @@ gameLoop snake point oldDirection score = do
     if key == Just "q"
         then return ()
         else
-            if isGameOver
-                then gameOver newScore
-                else gameLoop newSnake newPoint direction newScore
+            gameLoop newSnake newPoint direction newScore
 
 gameOver :: Int -> IO ()
 gameOver score = do
