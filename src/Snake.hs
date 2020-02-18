@@ -71,9 +71,6 @@ printField field = foldr (\a b -> a ++ "\n" ++ b) [] field
 generateField :: [(Int, Int)] -> (Int, Int) -> String
 generateField snake apple =  undefined
 
---makeRows :: Int -> Int -> Snake -> String
---makeRows width height snake = take width $ makeRow 
-
 makeRow :: Int -> [(Int, Int)] -> String
 makeRow row snake = makeRow' 0
     where
@@ -165,7 +162,6 @@ gameLoop snake point oldDirection score = do
     newPoint <- handleApple snake point eats
     let isGameOver = tileInSnake (tail snake) (head snake)
     threadDelay tickDelay
-    --threadDelay 1000000
     
     clearField
 
